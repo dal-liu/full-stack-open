@@ -1,2 +1,2 @@
 # full-stack-open
-Full stack open submissions
+Full Stack Open submissions
