@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
-import personService from './services/persons'
+import phonebookService from './services/phonebook'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -11,7 +11,7 @@ const App = () => {
   const [filter, setFilter] = useState('')
 
   useEffect(() => {
-    personService
+    phonebookService
       .getAll()
       .then(response => {
         setPersons(response.data)
@@ -28,7 +28,7 @@ const App = () => {
     if (newName.length === 0) return
     
     if (!persons.some(person => person.name === newName)) {
-      personService
+      phonebookService
         .create(personObject)
         .then(response => {
           setPersons(persons.concat(response.data))
@@ -37,6 +37,17 @@ const App = () => {
         })
     } else {
       alert(`${newName} is already added to the phonebook`)
+    }
+  }
+
+  const deletePersonOf = (id) => {
+    const person = persons.find(p => p.id === id)
+    if (window.confirm(`Delete ${person.name}?`)) {
+      phonebookService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
     }
   }
 
@@ -72,7 +83,10 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={personsToShow} />
+      <Persons 
+        persons={personsToShow}
+        deletePersonOf={deletePersonOf}
+      />
     </div>
   )
 }
