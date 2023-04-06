@@ -27,7 +27,7 @@ const App = () => {
     
     if (newName.length === 0) return
     
-    if (!persons.some(person => person.name === newName)) {
+    if (!persons.some(p => p.name === newName)) {
       phonebookService
         .create(personObject)
         .then(response => {
@@ -36,7 +36,19 @@ const App = () => {
           setNewNumber('')
         })
     } else {
-      alert(`${newName} is already added to the phonebook`)
+      const person = persons.find(p => p.name === newName)
+      if (window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      )) {
+        const changedPerson = { ...person, number: newNumber}
+        phonebookService
+          .update(person.id, changedPerson)
+          .then(response => {
+            setPersons(persons.map(p => p.name !== newName ? p : response.data))
+            setNewName('')
+            setNewNumber('')
+          })
+      }
     }
   }
 
@@ -46,7 +58,7 @@ const App = () => {
       phonebookService
         .remove(id)
         .then(() => {
-          setPersons(persons.filter(person => person.id !== id))
+          setPersons(persons.filter(p => p.id !== id))
         })
     }
   }
@@ -65,7 +77,7 @@ const App = () => {
 
   const personsToShow = filter.length === 0
     ? persons
-    : persons.filter(person => person.name.toUpperCase().includes(filter.toUpperCase()))
+    : persons.filter(p => p.name.toUpperCase().includes(filter.toUpperCase()))
 
   return (
     <div>
