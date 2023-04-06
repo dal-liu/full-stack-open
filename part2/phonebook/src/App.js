@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import phonebookService from './services/phonebook'
+import './index.css'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     phonebookService
@@ -31,6 +35,10 @@ const App = () => {
       phonebookService
         .create(personObject)
         .then(response => {
+          setSuccessMessage(`Added ${newName}`)
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 5000)
           setPersons(persons.concat(response.data))
           setNewName('')
           setNewNumber('')
@@ -44,9 +52,19 @@ const App = () => {
         phonebookService
           .update(person.id, changedPerson)
           .then(response => {
+            setSuccessMessage(`Changed ${newName}`)
+            setTimeout(() => {
+              setSuccessMessage(null)
+            }, 5000)
             setPersons(persons.map(p => p.name !== newName ? p : response.data))
             setNewName('')
             setNewNumber('')
+          })
+          .catch(error => {
+            setErrorMessage(`Information of ${newName} has already been removed from server`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
       }
     }
@@ -82,11 +100,11 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      
+      <Notification type='success' message={successMessage} />
+      <Notification type='error' message={errorMessage} />
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
 
       <h3>Add a new</h3>
-      
       <PersonForm 
         onSubmit={addPerson}
         newName={newName} handleNameChange={handleNameChange}
@@ -94,7 +112,6 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-
       <Persons 
         persons={personsToShow}
         deletePersonOf={deletePersonOf}
