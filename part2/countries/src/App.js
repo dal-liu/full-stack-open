@@ -1,36 +1,38 @@
 import { useState, useEffect } from 'react'
-import countriesService from './services/countries'
+import countryService from './services/countries'
 import QueryForm from './components/QueryForm'
 import CountryList from './components/CountryList'
 
 const App = () => {
   const [countries, setCountries] = useState([])
+  const [allCountries, setAllCountries] = useState([])
   const [query, setQuery] = useState('')
 
   useEffect(() => {
     console.log('fetching country data...');
-    countriesService
+    countryService
       .getAll()
-      .then(response => {
-        // console.log(response.data)
-        setCountries(response.data)
+      .then(countryData => {
+        setAllCountries(countryData)
       })
   }, [])
 
   const handleQueryChange = (event) => {
     setQuery(event.target.value)
+    const newQuery = event.target.value
+    if (newQuery) {
+      setCountries(allCountries.filter(c => 
+        c.name.common.toUpperCase().includes(newQuery.toUpperCase())
+      ))
+    } else {
+      setCountries([])
+    }
   }
-
-  const countriesToShow = query
-    ? countries.filter(c =>
-      c.name.common.toUpperCase().includes(query.toUpperCase())
-    )
-    : []
 
   return (
     <div>
-      <QueryForm query={query} handleQueryChange={handleQueryChange} />
-      <CountryList countries={countriesToShow} />
+      <QueryForm query={query} onChange={handleQueryChange} />
+      <CountryList countries={countries} onClick={setCountries}/>
     </div>
   )
 }

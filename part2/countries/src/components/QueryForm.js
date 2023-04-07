@@ -1,8 +1,8 @@
-const QueryForm = ({ query, handleQueryChange }) => {
+const QueryForm = ({ query, onChange }) => {
   return (
     <div>
       find countries
-      <input value={query} onChange={handleQueryChange}></input>
+      <input value={query} onChange={onChange}></input>
     </div>
   )
 }
