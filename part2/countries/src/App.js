@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import countryService from './services/countries'
+import axios from 'axios'
 import QueryForm from './components/QueryForm'
 import CountryList from './components/CountryList'
 
@@ -10,10 +10,10 @@ const App = () => {
 
   useEffect(() => {
     console.log('fetching country data...');
-    countryService
-      .getAll()
-      .then(countryData => {
-        setAllCountries(countryData)
+    axios
+      .get('https://restcountries.com/v3.1/all')
+      .then(response => {
+        setAllCountries(response.data)
       })
   }, [])
 

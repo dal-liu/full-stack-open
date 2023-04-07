@@ -1,6 +1,9 @@
+import WeatherInfo from './WeatherInfo'
+
 const CountryInfo = ({ country }) => {
   const keys = Object.keys(country)
-  const capitals = keys.some(key => key === 'capital')
+  const hasCapital = keys.some(key => key === 'capital')
+  const capitals = hasCapital
     ? country.capital.join(', ')
     : 'N/A'
   const languages = keys.some(key => key === 'languages')
@@ -8,6 +11,9 @@ const CountryInfo = ({ country }) => {
       <li key={lang}>{country.languages[lang]}</li>
     )
     : <li>N/A</li>
+  const weather = hasCapital
+    ? <WeatherInfo capital={country.capital[0]} />
+    : <p>weather unavailable</p>
 
   return (
     <>
@@ -16,11 +22,12 @@ const CountryInfo = ({ country }) => {
       <div>capital {capitals}</div>
       <div>area {country.area}</div>
 
-      <h3>languages:</h3>
-
+      <h4>languages:</h4>
       <ul>{languages}</ul>
 
-      <img src={country.flags.png}></img>
+      <img src={country.flags.png} alt={`flag of ${country.name.common}`}></img>
+
+      <div>{weather}</div>
     </>
   )
 }
