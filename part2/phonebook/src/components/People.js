@@ -7,9 +7,9 @@ const Person = ({ person, deletePerson }) => {
   )
 }
 
-const Persons = ({ persons, deletePersonOf }) => {
+const People = ({ people, deletePersonOf }) => {
   return (
-    persons.map(person =>
+    people.map(person =>
       <Person 
         key={person.id} 
         person={person}
@@ -19,4 +19,4 @@ const Persons = ({ persons, deletePersonOf }) => {
   )
 }
 
-export default Persons
+export default People

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Persons from './components/Persons'
+import People from './components/People'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import Notification from './components/Notification'
@@ -7,7 +7,7 @@ import phonebookService from './services/phonebook'
 import './index.css'
 
 const App = () => {
-  const [persons, setPersons] = useState([])
+  const [people, setPeople] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
@@ -18,7 +18,7 @@ const App = () => {
     phonebookService
       .getAll()
       .then(response => {
-        setPersons(response.data)
+        setPeople(response.data)
       })
   }, [])
 
@@ -31,7 +31,7 @@ const App = () => {
     
     if (newName.length === 0) return
     
-    if (!persons.some(p => p.name === newName)) {
+    if (!people.some(person => person.name === newName)) {
       phonebookService
         .create(personObject)
         .then(response => {
@@ -39,12 +39,12 @@ const App = () => {
           setTimeout(() => {
             setSuccessMessage(null)
           }, 5000)
-          setPersons(persons.concat(response.data))
+          setPeople(people.concat(response.data))
           setNewName('')
           setNewNumber('')
         })
     } else {
-      const person = persons.find(p => p.name === newName)
+      const person = people.find(person => person.name === newName)
       if (window.confirm(
         `${newName} is already added to phonebook, replace the old number with a new one?`
       )) {
@@ -56,7 +56,7 @@ const App = () => {
             setTimeout(() => {
               setSuccessMessage(null)
             }, 5000)
-            setPersons(persons.map(p => p.name !== newName ? p : response.data))
+            setPeople(people.map(person => person.name !== newName ? person : response.data))
             setNewName('')
             setNewNumber('')
           })
@@ -71,12 +71,12 @@ const App = () => {
   }
 
   const deletePersonOf = (id) => {
-    const person = persons.find(p => p.id === id)
+    const person = people.find(person => person.id === id)
     if (window.confirm(`Delete ${person.name}?`)) {
       phonebookService
         .remove(id)
         .then(() => {
-          setPersons(persons.filter(p => p.id !== id))
+          setPeople(people.filter(person => person.id !== id))
         })
     }
   }
@@ -93,9 +93,9 @@ const App = () => {
     setFilter(event.target.value)
   }
 
-  const personsToShow = filter.length === 0
-    ? persons
-    : persons.filter(p => p.name.toUpperCase().includes(filter.toUpperCase()))
+  const peopleToShow = filter.length === 0
+    ? people
+    : people.filter(person => person.name.toUpperCase().includes(filter.toUpperCase()))
 
   return (
     <div>
@@ -112,8 +112,8 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-      <Persons 
-        persons={personsToShow}
+      <People 
+        people={peopleToShow}
         deletePersonOf={deletePersonOf}
       />
     </div>
