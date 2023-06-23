@@ -24,7 +24,11 @@ const favoriteBlog = (blogs) => {
   }
 
   const initial = blogs.length === 0
-    ? null
+    ? {
+      title: "N/A",
+      author: "N/A",
+      likes: 0
+    }
     : {
       title: blogs[0].title,
       author: blogs[0].author,
@@ -36,8 +40,6 @@ const favoriteBlog = (blogs) => {
 const mostBlogs = (blogs) => {
   const authors = _.countBy(blogs, 'author')
   const reducer = (currentAuthor, value, key) => {
-    console.log(currentAuthor)
-    console.log(`key:${key}, value:${value}`)
     return value > currentAuthor.blogs
       ? {
         author: key,
@@ -46,7 +48,10 @@ const mostBlogs = (blogs) => {
       : currentAuthor
   }
   const initial = _.isEmpty(authors)
-    ? null
+    ? {
+      author: "N/A",
+      blogs: 0
+    }
     : {
     author: Object.keys(authors)[0],
     blogs: Object.values(authors)[0]
@@ -54,9 +59,34 @@ const mostBlogs = (blogs) => {
   return _.reduce(authors, reducer, initial)
 }
 
+const mostLikes = (blogs) => {
+  const blogsByAuthor = _.groupBy(blogs, 'author')
+  console.log(blogsByAuthor);
+  const reducer = (currentAuthor, value, key) => {
+    const currentSum = _.sumBy(value, 'likes')
+    return currentSum > currentAuthor.likes
+      ? {
+        author: key,
+        likes: currentSum
+      }
+      : currentAuthor
+  }
+  const initial = _.isEmpty(blogsByAuthor)
+    ? {
+      author: "N/A",
+      likes: 0
+    }
+    : {
+      author: Object.keys(blogsByAuthor)[0],
+      likes: _.sumBy(Object.values(blogsByAuthor)[0], 'likes')
+    }
+  return _.reduce(blogsByAuthor, reducer, initial)
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
