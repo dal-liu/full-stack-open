@@ -61,7 +61,6 @@ const mostBlogs = (blogs) => {
 
 const mostLikes = (blogs) => {
   const blogsByAuthor = _.groupBy(blogs, 'author')
-  console.log(blogsByAuthor);
   const reducer = (currentAuthor, value, key) => {
     const currentSum = _.sumBy(value, 'likes')
     return currentSum > currentAuthor.likes
