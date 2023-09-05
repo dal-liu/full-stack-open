@@ -1,36 +1,24 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
-const Blog = require('../models/blog')
 
-const initialBlogs = [
-  {
-    title: "blog1",
-    author: "author1",
-    url: "url1",
-    likes: 1
-  },
-  {
-    title: "blog2",
-    author: "author2",
-    url: "url2",
-    likes: 2
-  }
-]
+const Blog = require('../models/blog')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
+  
+  const blogObjects = helper.initialBlogs
+    .map(blog => new Blog(blog))
+  const promiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArray)
 })
 
 test('correct number of blogs', async () => {
   const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(initialBlogs.length)
+  expect(response.body).toHaveLength(helper.initialBlogs.length)
 })
 
 test('unique identifier is named id', async () => {
@@ -53,11 +41,10 @@ test('http post works correctly', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-  const contents = response.body.map(r => r.title)
-
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  const contents = blogsAtEnd.map(r => r.title)
   expect(contents).toContain('title3')
 })
 
@@ -74,9 +61,43 @@ test('missing likes property defaults to zero', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
+  const blogsAtEnd = await helper.blogsInDb()
   
-  expect(response.body[initialBlogs.length].likes).toBe(0)
+  expect(blogsAtEnd[helper.initialBlogs.length].likes).toBe(0)
+})
+
+test('blog without title is not added', async () => {
+  const newBlog = {
+    author: "author4",
+    url: "url4",
+    likes: 4
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+})
+
+test('blog without url is not added', async () => {
+  const newBlog = {
+    title: "title4",
+    author: "author4",
+    likes: 4
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 })
 
 afterAll(async () => {
