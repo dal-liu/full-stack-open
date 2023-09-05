@@ -39,6 +39,28 @@ test('unique identifier is named id', async () => {
   expect(response.body[0].id).toBeDefined()
 })
 
+test('http post works correctly', async () => {
+  const newBlog = {
+    title: "title3",
+    author: "author3",
+    url: "url3",
+    likes: 3
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const contents = response.body.map(r => r.title)
+
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(contents).toContain('title3')
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
