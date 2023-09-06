@@ -1,18 +1,16 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  
-  const blogObjects = helper.initialBlogs
-    .map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
+  await Blog.insertMany(helper.initialBlogs)
 })
 
 describe('when there is initially some blogs saved', () => {
@@ -144,6 +142,45 @@ describe('updating a blog', () => {
     const blogsAtEnd = await helper.blogsInDb()
 
     expect(blogsAtEnd[0].likes).toBe(10)
+  })
+})
+
+describe('when there is initially one user in db', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('tropical', 10)
+    const user = new User({ username: 'root', passwordHash })
+
+    await user.save()
+  })
+
+  test('see all users at the start', async () => {
+    const response = await api.get('/api/users')
+
+    expect(response.body.length).toBe(1)
+  })
+
+  test('creation succeeds with a new username', async () => {
+    const initialUsers = await helper.usersInDb()
+
+    const newUser = {
+      username: 'user1',
+      name: 'name1',
+      password: 'password1'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const finalUsers = await helper.usersInDb()
+    expect(finalUsers.length).toBe(initialUsers.length + 1)
+
+    const usernames = finalUsers.map(user => user.username)
+    expect(usernames).toContain(newUser.username)
   })
 })
 

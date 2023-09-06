@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Blog = require('./models/blog')
+const User = require('./models/user')
 
 if (process.argv.length < 3) {
   console.log('give password as argument')
@@ -9,19 +10,18 @@ if (process.argv.length < 3) {
 const password = process.argv[2]
 
 const url = 
-  `mongodb+srv://fullstack:${password}@cluster0.fde5o5t.mongodb.net/testBloglistApp?retryWrites=true&w=majority`
+  `mongodb+srv://fullstack:${password}@cluster0.fde5o5t.mongodb.net/bloglistApp?retryWrites=true&w=majority`
 
 mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
-const blog = new Blog({
-  title: "blog2",
-  author: "author2",
-  url: "url2",
-  likes: 2
+const user = new User({
+  username: 'dal-liu',
+  name: 'daniel',
+  password: 'dwigt'
 })
 
-blog.save().then(result => {
+user.save().then(result => {
   console.log('blog saved!')
   mongoose.connection.close()
 })
