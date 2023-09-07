@@ -1,24 +1,12 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxMjMiLCJpZCI6IjY0ZmE0NDViMjdkMzZhMDQ0NTRiMmQ2ZiIsImlhdCI6MTY5NDEyNDY1Nn0.BWfVQp32cAJuWctT2z8JqiYIZOUw2j0-vIgkDlnsLJA
 
 {
-  "title": "The Art of Productivity",
-  "author": "John Smith",
-  "url": "https://www.example.com/art-of-productivity",
-  "likes": 245,
-  "userId": "64fa441627d36a04454b2d68"
+  "title": "Traveling Tips for Beginners",
+  "author": "Sarah Johnson",
+  "url": "https://www.example.com/traveling-tips",
+  "likes": 78
 }
 
-###
-
-POST http://localhost:3003/api/blogs
-Content-Type: application/json
-
-{
-  "title": "Exploring the Wonders of Nature",
-  "author": "Emily Johnson",
-  "url": "https://www.example.com/exploring-nature",
-  "likes": 532,
-  "userId": "64fa441627d36a04454b2d68"
-}
 
