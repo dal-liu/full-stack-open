@@ -2,8 +2,23 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "Blogs Test 3",
-  "author": "Me",
-  "url": "paramore.net",
-  "likes": 10023
+  "title": "The Art of Productivity",
+  "author": "John Smith",
+  "url": "https://www.example.com/art-of-productivity",
+  "likes": 245,
+  "userId": "64f9f48dca5fe917c1703d53"
 }
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Exploring the Wonders of Nature",
+  "author": "Emily Johnson",
+  "url": "https://www.example.com/exploring-nature",
+  "likes": 532,
+  "userId": "64f9f48dca5fe917c1703d53"
+}
+

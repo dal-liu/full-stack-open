@@ -19,8 +19,7 @@ const user = new User({
   username: "user123",
   name: "John Doe",
   password: "SecurePassword123"
-}
-)
+})
 
 user.save().then(result => {
   console.log('user saved!')
