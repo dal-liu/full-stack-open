@@ -16,12 +16,13 @@ mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
 const user = new User({
-  username: 'dal-liu',
-  name: 'daniel',
-  password: 'dwigt'
-})
+  username: "user123",
+  name: "John Doe",
+  password: "SecurePassword123"
+}
+)
 
 user.save().then(result => {
-  console.log('blog saved!')
+  console.log('user saved!')
   mongoose.connection.close()
 })

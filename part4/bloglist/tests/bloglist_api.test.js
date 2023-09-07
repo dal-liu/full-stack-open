@@ -182,6 +182,89 @@ describe('when there is initially one user in db', () => {
     const usernames = finalUsers.map(user => user.username)
     expect(usernames).toContain(newUser.username)
   })
+
+  test('user with no username is not added', async () => {
+    const newUser = {
+      name: 'name2',
+      password: 'password2'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    const usersAtEnd = await helper.usersInDb()
+
+    expect(usersAtEnd.length).toBe(1)
+  })
+
+  test('user with username too short is not added', async () => {
+    const newUser = {
+      username: 'u2',
+      name: 'name2',
+      password: 'password2'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    const usersAtEnd = await helper.usersInDb()
+
+    expect(usersAtEnd.length).toBe(1)
+  })
+
+  test('user with non unique username is not added', async () => {
+    const newUser = {
+      username: 'root',
+      name: 'name2',
+      password: 'password2'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    const usersAtEnd = await helper.usersInDb()
+
+    expect(usersAtEnd.length).toBe(1)
+  })
+
+  test('user with no password is not added', async () => {
+    const newUser = {
+      username: 'user2',
+      name: 'name2'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    const usersAtEnd = await helper.usersInDb()
+
+    expect(usersAtEnd.length).toBe(1)
+  })
+
+  test('user with password too short is not added', async () => {
+    const newUser = {
+      username: 'user2',
+      name: 'name2',
+      password: 'p2'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    const usersAtEnd = await helper.usersInDb()
+
+    expect(usersAtEnd.length).toBe(1)
+  })
 })
 
 afterAll(async () => {
