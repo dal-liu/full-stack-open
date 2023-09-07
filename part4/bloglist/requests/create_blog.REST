@@ -6,7 +6,7 @@ Content-Type: application/json
   "author": "John Smith",
   "url": "https://www.example.com/art-of-productivity",
   "likes": 245,
-  "userId": "64f9f48dca5fe917c1703d53"
+  "userId": "64fa441627d36a04454b2d68"
 }
 
 ###
@@ -19,6 +19,6 @@ Content-Type: application/json
   "author": "Emily Johnson",
   "url": "https://www.example.com/exploring-nature",
   "likes": 532,
-  "userId": "64f9f48dca5fe917c1703d53"
+  "userId": "64fa441627d36a04454b2d68"
 }
 
