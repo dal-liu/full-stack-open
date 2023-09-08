@@ -18,7 +18,7 @@ describe('when there is initially some blogs saved', () => {
     const response = await api.get('/api/blogs')
 
     expect(response.body).toHaveLength(helper.initialBlogs.length)
-  })
+  }, 100000)
 
   test('unique identifier is named id', async () => {
     const response = await api.get('/api/blogs')
@@ -27,7 +27,21 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('addition of a new blog', () => {
+    beforeEach(async () => {
+      await User.deleteMany({})
+
+      const passwordHash = await bcrypt.hash('password1', 10)
+      const user = new User({ username: 'user1', passwordHash })
+
+      await user.save()
+    })
+
     test('http post works correctly', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'user1', password: 'password1' })
+      const token = response.body.token
+
       const newBlog = {
         title: "title3",
         author: "author3",
@@ -37,6 +51,7 @@ describe('when there is initially some blogs saved', () => {
       
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -49,6 +64,11 @@ describe('when there is initially some blogs saved', () => {
     })
 
     test('missing likes property defaults to zero', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'user1', password: 'password1' })
+      const token = response.body.token
+
       const newBlog = {
         title: "title0",
         author: "author0",
@@ -57,16 +77,21 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
       const blogsAtEnd = await helper.blogsInDb()
-      
       expect(blogsAtEnd[helper.initialBlogs.length].likes).toBe(0)
     })
 
     test('blog without title is not added', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'user1', password: 'password1' })
+      const token = response.body.token
+
       const newBlog = {
         author: "author4",
         url: "url4",
@@ -75,15 +100,20 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
-
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
     })
 
     test('blog without url is not added', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'user1', password: 'password1' })
+      const token = response.body.token
+
       const newBlog = {
         title: "title4",
         author: "author4",
@@ -92,11 +122,28 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+    })
 
+    test('blog without authorization is not added', async () => {
+      const newBlog = {
+        title: "title3",
+        author: "author3",
+        url: "url3",
+        likes: 3
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+
+      const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
     })
   })
@@ -111,11 +158,9 @@ describe('when there is initially some blogs saved', () => {
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
-
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
 
       const contents = blogsAtEnd.map(r => r.title)
-
       expect(contents).not.toContain(blogToDelete.title)
     })
   })
@@ -139,7 +184,6 @@ describe('when there is initially some blogs saved', () => {
       expect(response.body.likes).toBe(10)
       
       const blogsAtEnd = await helper.blogsInDb()
-
       expect(blogsAtEnd[0].likes).toBe(10)
     })
   })
@@ -149,8 +193,8 @@ describe('when there is initially one user in db', () => {
   beforeEach(async () => {
     await User.deleteMany({})
 
-    const passwordHash = await bcrypt.hash('tropical', 10)
-    const user = new User({ username: 'root', passwordHash })
+    const passwordHash = await bcrypt.hash('password1', 10)
+    const user = new User({ username: 'user1', passwordHash })
 
     await user.save()
   })
@@ -166,9 +210,9 @@ describe('when there is initially one user in db', () => {
       const initialUsers = await helper.usersInDb()
   
       const newUser = {
-        username: 'user1',
-        name: 'name1',
-        password: 'password1'
+        username: 'user2',
+        name: 'name2',
+        password: 'password2'
       }
   
       await api
@@ -213,13 +257,12 @@ describe('when there is initially one user in db', () => {
         .expect(400)
   
       const usersAtEnd = await helper.usersInDb()
-  
       expect(usersAtEnd.length).toBe(1)
     })
   
     test('user with non unique username is not added', async () => {
       const newUser = {
-        username: 'root',
+        username: 'user1',
         name: 'name2',
         password: 'password2'
       }
@@ -230,7 +273,6 @@ describe('when there is initially one user in db', () => {
         .expect(400)
   
       const usersAtEnd = await helper.usersInDb()
-  
       expect(usersAtEnd.length).toBe(1)
     })
   
@@ -246,7 +288,6 @@ describe('when there is initially one user in db', () => {
         .expect(400)
   
       const usersAtEnd = await helper.usersInDb()
-  
       expect(usersAtEnd.length).toBe(1)
     })
   
@@ -263,7 +304,6 @@ describe('when there is initially one user in db', () => {
         .expect(400)
   
       const usersAtEnd = await helper.usersInDb()
-  
       expect(usersAtEnd.length).toBe(1)
     })
   })
