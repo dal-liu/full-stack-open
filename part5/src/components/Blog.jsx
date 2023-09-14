@@ -5,7 +5,7 @@ const Blog = ({ blog, updateBlog, user, deleteBlog }) => {
 
   const hideWhenVisible = { display: showDetails ? 'none' : '' }
   const showWhenVisible = { display: showDetails ? '' : 'none' }
-  const showIfCorrectUser = { 
+  const showIfCorrectUser = {
     display: user.username === blog.user.username ? '' : 'none'
   }
 
@@ -39,7 +39,7 @@ const Blog = ({ blog, updateBlog, user, deleteBlog }) => {
           <button onClick={() => deleteBlog(blog.id)} style={showIfCorrectUser}>remove</button>
         </div>
       </div>
-    </div>  
+    </div>
   )
 }
 

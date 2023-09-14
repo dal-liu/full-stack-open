@@ -171,22 +171,22 @@ const App = () => {
         <p>{user.name} logged in
           <button onClick={handleLogout}>logout</button>
         </p>
-        </div>
+      </div>
       }
 
       {blogForm()}
-      
+
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map(blog =>
-          <Blog 
-            key={blog.id} 
-            blog={blog} 
+          <Blog
+            key={blog.id}
+            blog={blog}
             updateBlog={addLike}
             user={user}
             deleteBlog={deleteBlog}
           />
-      )}
+        )}
     </div>
   )
 }
