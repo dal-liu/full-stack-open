@@ -1,10 +1,13 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlog, user, deleteBlog }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const hideWhenVisible = { display: showDetails ? 'none' : '' }
   const showWhenVisible = { display: showDetails ? '' : 'none' }
+  const showIfCorrectUser = { 
+    display: user.username === blog.user.username ? '' : 'none'
+  }
 
   const blogStyle = {
     paddingTop: 10,
@@ -27,10 +30,13 @@ const Blog = ({ blog, updateBlog }) => {
         </div>
         <div>
           likes {blog.likes}
-        <button onClick={() => updateBlog(blog.id)}>like</button>
+          <button onClick={() => updateBlog(blog.id)}>like</button>
         </div>
         <div>
           {blog.user.name}
+        </div>
+        <div>
+          <button onClick={() => deleteBlog(blog.id)} style={showIfCorrectUser}>remove</button>
         </div>
       </div>
     </div>  

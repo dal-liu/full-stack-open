@@ -92,7 +92,26 @@ const App = () => {
       returnedBlog.user = blog.user
       setBlogs(blogs.map(b => b.id !== id ? b : returnedBlog))
     } catch (exception) {
-      setErrorMessage(`unable to like blog ${blog.title}`)
+      setErrorMessage(`unable to like blog ${blog.title} by ${blog.author}`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
+  const deleteBlog = async id => {
+    const blog = blogs.find(b => b.id === id)
+    try {
+      if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        await blogService.remove(id)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        setSuccessMessage(`blog ${blog.title} by ${blog.author} removed`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+      }
+    } catch (exception) {
+      setErrorMessage(`unable to remove blog ${blog.title} by ${blog.author}`)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -160,7 +179,13 @@ const App = () => {
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={addLike} />
+          <Blog 
+            key={blog.id} 
+            blog={blog} 
+            updateBlog={addLike}
+            user={user}
+            deleteBlog={deleteBlog}
+          />
       )}
     </div>
   )
