@@ -15,9 +15,10 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    async function getBlogs() {
+      setBlogs(await blogService.getAll())
+    }
+    getBlogs()
   }, [])
 
   useEffect(() => {
@@ -68,13 +69,29 @@ const App = () => {
     blogFormRef.current.toggleVisibility()
     try {
       const returnedBlog = await blogService.create(blogObject)
-      setBlogs(await blogService.getAll())
+      returnedBlog.user = user
+      setBlogs(blogs.concat(returnedBlog))
       setSuccessMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
     } catch (exception) {
       setErrorMessage(exception.message)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
+  const addLike = async id => {
+    const blog = blogs.find(b => b.id === id)
+    const updatedBlog = { ...blog, likes: blog.likes + 1 }
+    try {
+      const returnedBlog = await blogService.update(id, updatedBlog)
+      returnedBlog.user = blog.user
+      setBlogs(blogs.map(b => b.id !== id ? b : returnedBlog))
+    } catch (exception) {
+      setErrorMessage(`unable to like blog ${blog.title}`)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -140,7 +157,7 @@ const App = () => {
       {blogForm()}
       
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={addLike} />
       )}
     </div>
   )
