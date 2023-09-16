@@ -1,6 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 describe('<Blog />', () => {
@@ -26,5 +27,14 @@ describe('<Blog />', () => {
   test('at start the url and likes are not displayed', () => {
     const div = container.querySelector('.toggleableContent')
     expect(div).toHaveStyle('display: none')
+  })
+
+  test('after clicking button, url and likes are displayed', async () => {
+    const user = userEvent.setup()
+    const button = screen.getByText('view')
+    await user.click(button)
+
+    const div = container.querySelector('.toggleableContent')
+    expect(div).not.toHaveStyle('display: none')
   })
 })
