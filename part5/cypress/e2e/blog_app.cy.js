@@ -50,7 +50,7 @@ describe('Blog app', function() {
       cy.get('#url').type('url1')
       cy.get('#create-button').click()
 
-      cy.contains('title1 author1')
+      cy.contains('title1')
     })
 
     describe('and a blog exists', function() {
@@ -63,7 +63,7 @@ describe('Blog app', function() {
       })
 
       it('it can be liked', function() {
-        cy.contains('title2 author2')
+        cy.contains('title2')
           .contains('view')
           .click()
 
@@ -72,7 +72,7 @@ describe('Blog app', function() {
       })
 
       it('it can be deleted by the creator', function() {
-        cy.contains('title2 author2')
+        cy.contains('title2')
           .contains('view')
           .click()
 
@@ -91,14 +91,43 @@ describe('Blog app', function() {
 
         cy.contains('logout').click()
         cy.login({ username: 'user2', password: 'password2' })
-        cy.contains('title2 author2').parent().as('theBlog')
-        cy.get('@theBlog')
+        cy.contains('title2').parent().as('blog2')
+        cy.get('@blog2')
           .contains('view')
           .click()
 
-        cy.get('@theBlog')
+        cy.get('@blog2')
           .contains('remove')
           .should('have.css', 'display', 'none')
+      })
+    })
+
+    describe('and several blogs exist', function() {
+      beforeEach(function() {
+        cy.createBlog({
+          title: 'title3',
+          author: 'author3',
+          url: 'url3'
+        })
+        cy.createBlog({
+          title: 'title4',
+          author: 'author4',
+          url: 'url4'
+        })
+      })
+
+      it('they are sorted by likes', function() {
+        cy.contains('title4').parent().as('blog4')
+        cy.get('@blog4')
+          .contains('view')
+          .click()
+
+        cy.get('@blog4')
+          .contains('button', 'like')
+          .click()
+
+        cy.get('.blog').eq(0).should('contain', 'title4')
+        cy.get('.blog').eq(1).should('contain', 'title3')
       })
     })
   })
