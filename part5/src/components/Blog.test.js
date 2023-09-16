@@ -14,10 +14,14 @@ describe('<Blog />', () => {
     user: user
   }
 
+  const mockHandler = jest.fn()
+
   let container
 
   beforeEach(() => {
-    container = render(<Blog blog={blog} user={user} />).container
+    container = render(
+      <Blog blog={blog} updateBlog={mockHandler} user={user} />
+    ).container
   })
 
   test('renders title and author', async () => {
@@ -36,5 +40,17 @@ describe('<Blog />', () => {
 
     const div = container.querySelector('.toggleableContent')
     expect(div).not.toHaveStyle('display: none')
+  })
+
+  test('like button clicked twice', async () => {
+    const user = userEvent.setup()
+    const view = screen.getByText('view')
+    await user.click(view)
+
+    const like = screen.getByText('like')
+    await user.click(like)
+    await user.click(like)
+
+    expect(mockHandler.mock.calls).toHaveLength(2)
   })
 })
