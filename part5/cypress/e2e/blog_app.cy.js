@@ -62,13 +62,23 @@ describe('Blog app', function() {
         })
       })
 
-      it.only('it can be liked', function() {
+      it('it can be liked', function() {
         cy.contains('title2 author2')
           .contains('view')
           .click()
 
         cy.contains('likes 0').find('button').click()
         cy.contains('likes 1')
+      })
+
+      it.only('it can be deleted', function() {
+        cy.contains('title2 author2')
+          .contains('view')
+          .click()
+
+        cy.contains('remove').click()
+
+        cy.get('html').should('not.contain', 'title2 author2')
       })
     })
   })
