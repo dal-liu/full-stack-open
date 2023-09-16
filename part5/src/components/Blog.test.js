@@ -3,6 +3,7 @@ import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
+import BlogForm from './BlogForm'
 
 describe('<Blog />', () => {
   const user = { username: 'user1' }
@@ -52,5 +53,29 @@ describe('<Blog />', () => {
     await user.click(like)
 
     expect(mockHandler.mock.calls).toHaveLength(2)
+  })
+})
+
+describe('<BlogForm />', () => {
+  test('updates parent state and calls onSubmit', async () => {
+    const createBlog = jest.fn()
+    const user = userEvent.setup()
+
+    render(<BlogForm createBlog={createBlog} />)
+
+    const titleInput = screen.getByPlaceholderText('write blog title here')
+    const authorInput = screen.getByPlaceholderText('write blog author here')
+    const urlInput = screen.getByPlaceholderText('write blog url here')
+    const sendButton = screen.getByText('create')
+
+    await user.type(titleInput, 'title1')
+    await user.type(authorInput, 'author1')
+    await user.type(urlInput, 'url1')
+    await user.click(sendButton)
+
+    expect(createBlog.mock.calls).toHaveLength(1)
+    expect(createBlog.mock.calls[0][0].title).toBe('title1')
+    expect(createBlog.mock.calls[0][0].author).toBe('author1')
+    expect(createBlog.mock.calls[0][0].url).toBe('url1')
   })
 })
