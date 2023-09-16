@@ -71,7 +71,7 @@ describe('Blog app', function() {
         cy.contains('likes 1')
       })
 
-      it.only('it can be deleted', function() {
+      it('it can be deleted by the creator', function() {
         cy.contains('title2 author2')
           .contains('view')
           .click()
@@ -79,6 +79,26 @@ describe('Blog app', function() {
         cy.contains('remove').click()
 
         cy.get('html').should('not.contain', 'title2 author2')
+      })
+
+      it('it cannot be deleted by anyone else', function() {
+        const user = {
+          name: 'name2',
+          username: 'user2',
+          password: 'password2'
+        }
+        cy.request('POST', `${Cypress.env('BACKEND')}/users`, user)
+
+        cy.contains('logout').click()
+        cy.login({ username: 'user2', password: 'password2' })
+        cy.contains('title2 author2').parent().as('theBlog')
+        cy.get('@theBlog')
+          .contains('view')
+          .click()
+
+        cy.get('@theBlog')
+          .contains('remove')
+          .should('have.css', 'display', 'none')
       })
     })
   })
