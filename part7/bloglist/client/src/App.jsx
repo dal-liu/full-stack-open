@@ -7,7 +7,12 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
-import { initializeBlogs, createBlog } from './reducers/blogReducer'
+import {
+  initializeBlogs,
+  createBlog,
+  likeBlog,
+  removeBlog,
+} from './reducers/blogReducer'
 
 const App = () => {
   const blogs = useSelector((state) => state.blogs)
@@ -78,9 +83,7 @@ const App = () => {
     const blog = blogs.find((b) => b.id === id)
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
     try {
-      const returnedBlog = await blogService.update(id, updatedBlog)
-      returnedBlog.user = blog.user
-      setBlogs(blogs.map((b) => (b.id !== id ? b : returnedBlog)))
+      dispatch(likeBlog(id, updatedBlog, blog.user))
     } catch (exception) {
       dispatch(
         setNotification(
@@ -96,8 +99,7 @@ const App = () => {
     const blog = blogs.find((b) => b.id === id)
     try {
       if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-        await blogService.remove(id)
-        setBlogs(blogs.filter((b) => b.id !== blog.id))
+        dispatch(removeBlog(id))
         dispatch(
           setNotification(
             'success',
@@ -176,15 +178,17 @@ const App = () => {
 
       {blogForm()}
 
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          updateBlog={addLike}
-          user={user}
-          deleteBlog={deleteBlog}
-        />
-      ))}
+      {[...blogs]
+        .sort((a, b) => b.likes - a.likes)
+        .map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            updateBlog={addLike}
+            user={user}
+            deleteBlog={deleteBlog}
+          />
+        ))}
     </div>
   )
 }
