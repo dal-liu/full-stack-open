@@ -6,10 +6,11 @@ import Toggleable from './components/Toggleable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { initializeBlogs, createBlog } from './reducers/blogReducer'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  const blogs = useSelector((state) => state.blogs)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -17,11 +18,7 @@ const App = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    async function getBlogs() {
-      const blogsList = await blogService.getAll()
-      setBlogs(blogsList)
-    }
-    getBlogs()
+    dispatch(initializeBlogs())
   }, [])
 
   useEffect(() => {
@@ -64,13 +61,11 @@ const App = () => {
   const addBlog = async (blogObject) => {
     blogFormRef.current.toggleVisibility()
     try {
-      const returnedBlog = await blogService.create(blogObject)
-      returnedBlog.user = user
-      setBlogs(blogs.concat(returnedBlog))
+      dispatch(createBlog(blogObject, user))
       dispatch(
         setNotification(
           'success',
-          `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+          `a new blog ${blogObject.title} by ${blogObject.author} added`,
           5,
         ),
       )
@@ -181,17 +176,15 @@ const App = () => {
 
       {blogForm()}
 
-      {blogs
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            updateBlog={addLike}
-            user={user}
-            deleteBlog={deleteBlog}
-          />
-        ))}
+      {blogs.map((blog) => (
+        <Blog
+          key={blog.id}
+          blog={blog}
+          updateBlog={addLike}
+          user={user}
+          deleteBlog={deleteBlog}
+        />
+      ))}
     </div>
   )
 }
