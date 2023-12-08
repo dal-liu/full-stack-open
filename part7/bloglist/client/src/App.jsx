@@ -13,15 +13,17 @@ import {
   removeBlog,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, useMatch } from 'react-router-dom'
 import UserList from './components/UserList'
+import userService from './services/users'
+import User from './components/User'
 
 const App = () => {
   const blogs = useSelector((state) => state.blogs)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const user = useSelector((state) => state.user)
-
+  const [users, setUsers] = useState([])
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -30,6 +32,14 @@ const App = () => {
 
   useEffect(() => {
     dispatch(initializeUser())
+  }, [])
+
+  useEffect(() => {
+    async function getUsers() {
+      const userList = await userService.getAll()
+      setUsers(userList)
+    }
+    getUsers()
   }, [])
 
   const handleLogin = async (event) => {
@@ -112,6 +122,11 @@ const App = () => {
     }
   }
 
+  const match = useMatch('/users/:id')
+  const selectedUser = match
+    ? users.find((currentUser) => currentUser.id === String(match.params.id))
+    : null
+
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <div>
@@ -156,7 +171,7 @@ const App = () => {
   }
 
   return (
-    <Router>
+    <div>
       <h2>blogs</h2>
       <Notification />
 
@@ -190,9 +205,10 @@ const App = () => {
             </div>
           }
         />
-        <Route path="/users" element={<UserList />} />
+        <Route path="/users" element={<UserList users={users} />} />
+        <Route path="/users/:id" element={<User user={selectedUser} />} />
       </Routes>
-    </Router>
+    </div>
   )
 }
 
