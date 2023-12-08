@@ -13,6 +13,8 @@ import {
   removeBlog,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import UserList from './components/UserList'
 
 const App = () => {
   const blogs = useSelector((state) => state.blogs)
@@ -154,7 +156,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <Router>
       <h2>blogs</h2>
       <Notification />
 
@@ -167,20 +169,30 @@ const App = () => {
         </div>
       )}
 
-      {blogForm()}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>
+              {blogForm()}
 
-      {[...blogs]
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            updateBlog={addLike}
-            user={user}
-            deleteBlog={deleteBlog}
-          />
-        ))}
-    </div>
+              {[...blogs]
+                .sort((a, b) => b.likes - a.likes)
+                .map((blog) => (
+                  <Blog
+                    key={blog.id}
+                    blog={blog}
+                    updateBlog={addLike}
+                    user={user}
+                    deleteBlog={deleteBlog}
+                  />
+                ))}
+            </div>
+          }
+        />
+        <Route path="/users" element={<UserList />} />
+      </Routes>
+    </Router>
   )
 }
 
