@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const UserList = ({ users }) => {
   return (
-    <div>
+    <div className="user-list">
       <h2>Users</h2>
       <table>
         <thead>

@@ -1,46 +1,34 @@
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-const Blog = ({ blog, updateBlog, user, deleteBlog }) => {
-  const [showDetails, setShowDetails] = useState(false)
+const Blog = ({ blog, like, canRemove, remove }) => {
+  const navigate = useNavigate()
 
-  const hideWhenVisible = { display: showDetails ? 'none' : '' }
-  const showWhenVisible = { display: showDetails ? '' : 'none' }
-  const showIfCorrectUser = {
-    display: user.username === blog.user.username ? '' : 'none',
-  }
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
+  if (!blog) {
+    return null
   }
 
   return (
-    <div className="blog" style={blogStyle}>
-      <div>
+    <div className="blog">
+      <h2>
         {blog.title} {blog.author}
-        <button onClick={() => setShowDetails(true)} style={hideWhenVisible}>
-          view
-        </button>
-        <button onClick={() => setShowDetails(false)} style={showWhenVisible}>
-          hide
-        </button>
+      </h2>
+      <div>
+        <a href={blog.url}>{blog.url}</a>
       </div>
-      <div style={showWhenVisible} className="toggleableContent">
-        <div>{blog.url}</div>
-        <div>
-          likes {blog.likes}
-          <button onClick={() => updateBlog(blog.id)}>like</button>
-        </div>
-        <div>{blog.user.name}</div>
-        <div>
-          <button onClick={() => deleteBlog(blog.id)} style={showIfCorrectUser}>
-            remove
-          </button>
-        </div>
+      <div>
+        {blog.likes} likes <button onClick={() => like(blog.id)}>like</button>
       </div>
+      <div>{blog.user && blog.user.username}</div>
+      {canRemove && (
+        <button
+          onClick={() => {
+            remove(blog.id)
+            navigate('/')
+          }}
+        >
+          remove
+        </button>
+      )}
     </div>
   )
 }

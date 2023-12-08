@@ -13,7 +13,7 @@ import {
   removeBlog,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
-import { Routes, Route, useMatch } from 'react-router-dom'
+import { Routes, Route, Link, useMatch } from 'react-router-dom'
 import UserList from './components/UserList'
 import userService from './services/users'
 import User from './components/User'
@@ -122,9 +122,17 @@ const App = () => {
     }
   }
 
-  const match = useMatch('/users/:id')
-  const selectedUser = match
-    ? users.find((currentUser) => currentUser.id === String(match.params.id))
+  const canRemoveBlog = (blog) => {
+    return blog && user.username === blog.user.username
+  }
+
+  const userMatch = useMatch('/users/:id')
+  const selectedUser = userMatch
+    ? users.find((u) => u.id === String(userMatch.params.id))
+    : null
+  const blogMatch = useMatch('/blogs/:id')
+  const selectedBlog = blogMatch
+    ? blogs.find((b) => b.id === String(blogMatch.params.id))
     : null
 
   const loginForm = () => (
@@ -170,6 +178,14 @@ const App = () => {
     )
   }
 
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: 'solid',
+    borderWidth: 1,
+    marginBottom: 5,
+  }
+
   return (
     <div>
       <h2>blogs</h2>
@@ -194,19 +210,26 @@ const App = () => {
               {[...blogs]
                 .sort((a, b) => b.likes - a.likes)
                 .map((blog) => (
-                  <Blog
-                    key={blog.id}
-                    blog={blog}
-                    updateBlog={addLike}
-                    user={user}
-                    deleteBlog={deleteBlog}
-                  />
+                  <div key={blog.id} style={blogStyle}>
+                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                  </div>
                 ))}
             </div>
           }
         />
         <Route path="/users" element={<UserList users={users} />} />
         <Route path="/users/:id" element={<User user={selectedUser} />} />
+        <Route
+          path="/blogs/:id"
+          element={
+            <Blog
+              blog={selectedBlog}
+              like={addLike}
+              canRemove={canRemoveBlog(selectedBlog)}
+              remove={deleteBlog}
+            />
+          }
+        />
       </Routes>
     </div>
   )
