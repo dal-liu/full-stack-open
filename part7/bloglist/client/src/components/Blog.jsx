@@ -8,6 +8,7 @@ const Blog = ({ blog, like, canRemove, remove }) => {
       <h2>
         {blog.title} {blog.author}
       </h2>
+
       <div>
         <a href={blog.url}>{blog.url}</a>
       </div>
@@ -16,6 +17,13 @@ const Blog = ({ blog, like, canRemove, remove }) => {
       </div>
       <div>{blog.user && blog.user.username}</div>
       {canRemove && <button onClick={remove}>remove</button>}
+
+      <h3>comments</h3>
+      <ul>
+        {blog.comments.map((comment, index) => (
+          <li key={index}>{comment}</li>
+        ))}
+      </ul>
     </div>
   )
 }
