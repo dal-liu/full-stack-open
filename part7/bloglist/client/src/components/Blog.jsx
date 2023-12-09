@@ -1,8 +1,4 @@
-import { useNavigate } from 'react-router-dom'
-
 const Blog = ({ blog, like, canRemove, remove }) => {
-  const navigate = useNavigate()
-
   if (!blog) {
     return null
   }
@@ -16,19 +12,10 @@ const Blog = ({ blog, like, canRemove, remove }) => {
         <a href={blog.url}>{blog.url}</a>
       </div>
       <div>
-        {blog.likes} likes <button onClick={() => like(blog.id)}>like</button>
+        {blog.likes} likes <button onClick={like}>like</button>
       </div>
       <div>{blog.user && blog.user.username}</div>
-      {canRemove && (
-        <button
-          onClick={() => {
-            remove(blog.id)
-            navigate('/')
-          }}
-        >
-          remove
-        </button>
-      )}
+      {canRemove && <button onClick={remove}>remove</button>}
     </div>
   )
 }

@@ -13,10 +13,11 @@ import {
   removeBlog,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
-import { Routes, Route, Link, useMatch } from 'react-router-dom'
+import { Routes, Route, Link, useMatch, useNavigate } from 'react-router-dom'
 import UserList from './components/UserList'
 import userService from './services/users'
 import User from './components/User'
+import NavigationMenu from './components/NavigationMenu'
 
 const App = () => {
   const blogs = useSelector((state) => state.blogs)
@@ -25,6 +26,15 @@ const App = () => {
   const user = useSelector((state) => state.user)
   const [users, setUsers] = useState([])
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const blogFormRef = useRef()
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: 'solid',
+    borderWidth: 1,
+    marginBottom: 5,
+  }
 
   useEffect(() => {
     dispatch(initializeBlogs())
@@ -110,6 +120,7 @@ const App = () => {
             5,
           ),
         )
+        navigate('/')
       }
     } catch (exception) {
       dispatch(
@@ -160,8 +171,6 @@ const App = () => {
     </form>
   )
 
-  const blogFormRef = useRef()
-
   const blogForm = () => (
     <Toggleable buttonLabel="create blog" ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -178,27 +187,12 @@ const App = () => {
     )
   }
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
-  }
-
   return (
     <div>
-      <h2>blogs</h2>
-      <Notification />
+      {user && <NavigationMenu name={user.name} logout={handleLogout} />}
 
-      {user && (
-        <div>
-          <p>
-            {user.name} logged in
-            <button onClick={handleLogout}>logout</button>
-          </p>
-        </div>
-      )}
+      <h2>blog app</h2>
+      <Notification />
 
       <Routes>
         <Route
@@ -224,9 +218,9 @@ const App = () => {
           element={
             <Blog
               blog={selectedBlog}
-              like={addLike}
+              like={() => addLike(selectedBlog.id)}
               canRemove={canRemoveBlog(selectedBlog)}
-              remove={deleteBlog}
+              remove={() => deleteBlog(selectedBlog.id)}
             />
           }
         />
