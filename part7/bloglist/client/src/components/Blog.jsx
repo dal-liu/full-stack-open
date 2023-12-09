@@ -1,4 +1,15 @@
-const Blog = ({ blog, like, canRemove, remove }) => {
+import { useState } from 'react'
+
+const Blog = ({ blog, like, canRemove, remove, addComment }) => {
+  const [comment, setComment] = useState('')
+
+  const createComment = (event) => {
+    event.preventDefault()
+    addComment(blog.id, comment)
+
+    setComment('')
+  }
+
   if (!blog) {
     return null
   }
@@ -19,6 +30,17 @@ const Blog = ({ blog, like, canRemove, remove }) => {
       {canRemove && <button onClick={remove}>remove</button>}
 
       <h3>comments</h3>
+      <form onSubmit={createComment}>
+        <input
+          id="comment"
+          value={comment}
+          onChange={() => setComment(event.target.value)}
+          placeholder="write comment here"
+        />
+        <button id="create-comment" type="submit">
+          add comment
+        </button>
+      </form>
       <ul>
         {blog.comments.map((comment, index) => (
           <li key={index}>{comment}</li>

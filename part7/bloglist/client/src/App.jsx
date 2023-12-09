@@ -11,6 +11,7 @@ import {
   createBlog,
   likeBlog,
   removeBlog,
+  createComment,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
 import { Routes, Route, Link, useMatch, useNavigate } from 'react-router-dom'
@@ -18,6 +19,7 @@ import UserList from './components/UserList'
 import userService from './services/users'
 import User from './components/User'
 import NavigationMenu from './components/NavigationMenu'
+import blogService from './services/blogs'
 
 const App = () => {
   const blogs = useSelector((state) => state.blogs)
@@ -133,6 +135,16 @@ const App = () => {
     }
   }
 
+  const addComment = async (id, comment) => {
+    const blog = blogs.find((b) => b.id === id)
+    try {
+      dispatch(createComment(id, comment, blog.user))
+      dispatch(setNotification('success', `comment ${comment} added`, 5))
+    } catch (exception) {
+      dispatch(setNotification('error', 'unable to add comment', 5))
+    }
+  }
+
   const canRemoveBlog = (blog) => {
     return blog && user.username === blog.user.username
   }
@@ -221,6 +233,7 @@ const App = () => {
               like={() => addLike(selectedBlog.id)}
               canRemove={canRemoveBlog(selectedBlog)}
               remove={() => deleteBlog(selectedBlog.id)}
+              addComment={addComment}
             />
           }
         />
