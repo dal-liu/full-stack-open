@@ -3,15 +3,15 @@ import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Toggleable from './components/Toggleable'
+import blogService from './services/blogs'
 import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   initializeBlogs,
   createBlog,
-  likeBlog,
+  modifyBlog,
   removeBlog,
-  createComment,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
 import { Routes, Route, Link, useMatch, useNavigate } from 'react-router-dom'
@@ -32,7 +32,11 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    dispatch(initializeBlogs())
+    async function getBlogs() {
+      const blogs = await blogService.getAll()
+      dispatch(initializeBlogs(blogs))
+    }
+    getBlogs()
   }, [])
 
   useEffect(() => {
@@ -74,7 +78,9 @@ const App = () => {
   const addBlog = async (blogObject) => {
     blogFormRef.current.toggleVisibility()
     try {
-      dispatch(createBlog(blogObject, user))
+      const newBlog = await blogService.create(blogObject)
+      newBlog.user = user
+      dispatch(createBlog(newBlog, user))
       dispatch(
         setNotification(
           'success',
@@ -83,7 +89,7 @@ const App = () => {
         ),
       )
     } catch (exception) {
-      dispatch(setNotification('danger', exception.message, 5))
+      dispatch(setNotification('danger', 'unable to add new blog', 5))
     }
   }
 
@@ -91,7 +97,9 @@ const App = () => {
     const blog = blogs.find((b) => b.id === id)
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
     try {
-      dispatch(likeBlog(id, updatedBlog, blog.user))
+      const returnedBlog = await blogService.update(id, updatedBlog)
+      returnedBlog.user = blog.user
+      dispatch(modifyBlog(returnedBlog))
     } catch (exception) {
       dispatch(
         setNotification(
@@ -107,6 +115,7 @@ const App = () => {
     const blog = blogs.find((b) => b.id === id)
     try {
       if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        await blogService.remove(id)
         dispatch(removeBlog(id))
         dispatch(
           setNotification(
@@ -131,7 +140,9 @@ const App = () => {
   const addComment = async (id, comment) => {
     const blog = blogs.find((b) => b.id === id)
     try {
-      dispatch(createComment(id, comment, blog.user))
+      const returnedBlog = await blogService.comment(id, { comment: comment })
+      returnedBlog.user = blog.user
+      dispatch(modifyBlog(returnedBlog))
       dispatch(setNotification('success', `comment ${comment} added`, 5))
     } catch (exception) {
       dispatch(setNotification('danger', 'unable to add comment', 5))
