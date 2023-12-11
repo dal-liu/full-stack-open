@@ -19,7 +19,7 @@ import UserList from './components/UserList'
 import userService from './services/users'
 import User from './components/User'
 import NavigationMenu from './components/NavigationMenu'
-import blogService from './services/blogs'
+import { Table, Form, Button } from 'react-bootstrap'
 
 const App = () => {
   const blogs = useSelector((state) => state.blogs)
@@ -30,13 +30,6 @@ const App = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const blogFormRef = useRef()
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
-  }
 
   useEffect(() => {
     dispatch(initializeBlogs())
@@ -67,7 +60,7 @@ const App = () => {
       setPassword('')
       dispatch(setNotification('success', 'successfully logged in', 5))
     } catch (exception) {
-      dispatch(setNotification('error', 'wrong username or password', 5))
+      dispatch(setNotification('danger', 'wrong username or password', 5))
     }
     console.log('logging in with', username, password)
   }
@@ -90,7 +83,7 @@ const App = () => {
         ),
       )
     } catch (exception) {
-      dispatch(setNotification('error', exception.message, 5))
+      dispatch(setNotification('danger', exception.message, 5))
     }
   }
 
@@ -102,7 +95,7 @@ const App = () => {
     } catch (exception) {
       dispatch(
         setNotification(
-          'error',
+          'danger',
           `unable to like blog ${blog.title} by ${blog.author}`,
           5,
         ),
@@ -127,7 +120,7 @@ const App = () => {
     } catch (exception) {
       dispatch(
         setNotification(
-          'error',
+          'danger',
           `unable to remove blog ${blog.title} by ${blog.author}`,
           5,
         ),
@@ -141,7 +134,7 @@ const App = () => {
       dispatch(createComment(id, comment, blog.user))
       dispatch(setNotification('success', `comment ${comment} added`, 5))
     } catch (exception) {
-      dispatch(setNotification('error', 'unable to add comment', 5))
+      dispatch(setNotification('danger', 'unable to add comment', 5))
     }
   }
 
@@ -159,28 +152,29 @@ const App = () => {
     : null
 
   const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
+    <Form onSubmit={handleLogin}>
+      <Form.Group>
+        <Form.Label>username:</Form.Label>
+        <Form.Control
           id="username"
+          type="text"
           value={username}
           onChange={({ target }) => setUsername(target.value)}
         />
-      </div>
-      <div>
-        password
-        <input
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>password:</Form.Label>
+        <Form.Control
           id="password"
           type="password"
           value={password}
           onChange={({ target }) => setPassword(target.value)}
         />
-      </div>
-      <button id="login-button" type="submit">
+      </Form.Group>
+      <Button id="login-button" variant="primary" type="submit">
         login
-      </button>
-    </form>
+      </Button>
+    </Form>
   )
 
   const blogForm = () => (
@@ -191,7 +185,7 @@ const App = () => {
 
   if (!user) {
     return (
-      <div>
+      <div className="container">
         <h2>log in to application</h2>
         <Notification />
         {loginForm()}
@@ -200,7 +194,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       {user && <NavigationMenu name={user.name} logout={handleLogout} />}
 
       <h2>blog app</h2>
@@ -212,14 +206,19 @@ const App = () => {
           element={
             <div>
               {blogForm()}
-
-              {[...blogs]
-                .sort((a, b) => b.likes - a.likes)
-                .map((blog) => (
-                  <div key={blog.id} style={blogStyle}>
-                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-                  </div>
-                ))}
+              <Table striped>
+                <tbody>
+                  {[...blogs]
+                    .sort((a, b) => b.likes - a.likes)
+                    .map((blog) => (
+                      <tr key={blog.id}>
+                        <td>
+                          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
             </div>
           }
         />
