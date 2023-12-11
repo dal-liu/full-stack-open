@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import blogService from '../services/blogs'
 
 const blogSlice = createSlice({
   name: 'blog',
@@ -24,29 +23,5 @@ const blogSlice = createSlice({
 })
 
 export const { setBlogs, appendBlog, updateBlog, eraseBlog } = blogSlice.actions
-
-export const initializeBlogs = (blogs) => {
-  return async (dispatch) => {
-    dispatch(setBlogs(blogs))
-  }
-}
-
-export const createBlog = (blogObject) => {
-  return async (dispatch) => {
-    dispatch(appendBlog(blogObject))
-  }
-}
-
-export const modifyBlog = (blogObject) => {
-  return async (dispatch) => {
-    dispatch(updateBlog(blogObject))
-  }
-}
-
-export const removeBlog = (id) => {
-  return async (dispatch) => {
-    dispatch(eraseBlog(id))
-  }
-}
 
 export default blogSlice.reducer

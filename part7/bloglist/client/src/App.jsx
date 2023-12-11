@@ -8,10 +8,10 @@ import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  initializeBlogs,
-  createBlog,
-  modifyBlog,
-  removeBlog,
+  setBlogs,
+  appendBlog,
+  updateBlog,
+  eraseBlog,
 } from './reducers/blogReducer'
 import { initializeUser, loginUser, logoutUser } from './reducers/userReducer'
 import { Routes, Route, Link, useMatch, useNavigate } from 'react-router-dom'
@@ -34,7 +34,7 @@ const App = () => {
   useEffect(() => {
     async function getBlogs() {
       const blogs = await blogService.getAll()
-      dispatch(initializeBlogs(blogs))
+      dispatch(setBlogs(blogs))
     }
     getBlogs()
   }, [])
@@ -80,7 +80,7 @@ const App = () => {
     try {
       const newBlog = await blogService.create(blogObject)
       newBlog.user = user
-      dispatch(createBlog(newBlog, user))
+      dispatch(appendBlog(newBlog, user))
       dispatch(
         setNotification(
           'success',
@@ -99,7 +99,7 @@ const App = () => {
     try {
       const returnedBlog = await blogService.update(id, updatedBlog)
       returnedBlog.user = blog.user
-      dispatch(modifyBlog(returnedBlog))
+      dispatch(updateBlog(returnedBlog))
     } catch (exception) {
       dispatch(
         setNotification(
@@ -116,7 +116,7 @@ const App = () => {
     try {
       if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
         await blogService.remove(id)
-        dispatch(removeBlog(id))
+        dispatch(eraseBlog(id))
         dispatch(
           setNotification(
             'success',
@@ -142,7 +142,7 @@ const App = () => {
     try {
       const returnedBlog = await blogService.comment(id, { comment: comment })
       returnedBlog.user = blog.user
-      dispatch(modifyBlog(returnedBlog))
+      dispatch(updateBlog(returnedBlog))
       dispatch(setNotification('success', `comment ${comment} added`, 5))
     } catch (exception) {
       dispatch(setNotification('danger', 'unable to add comment', 5))
