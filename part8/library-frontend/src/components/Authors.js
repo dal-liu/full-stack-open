@@ -27,7 +27,7 @@ const AuthorForm = ({ authors }) => {
         <select value={name} onChange={({ target }) => setName(target.value)}>
           <option>--</option>
           {authors.map(a => (
-            <option key={a.id} value={a.name}>
+            <option key={a.name} value={a.name}>
               {a.name}
             </option>
           ))}

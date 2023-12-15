@@ -29,13 +29,13 @@ const typeDefs = `
     title: String!
     published: Int!
     author: Author!
-    id: ID!
+    _id: ID!
     genres: [String!]!
   }
 
   type Author {
     name: String!
-    id: ID!
+    _id: ID!
     born: Int
     bookCount: Int!
   }
@@ -43,7 +43,7 @@ const typeDefs = `
   type User {
     username: String!
     favoriteGenre: String!
-    id: ID!
+    _id: ID!
   }
 
   type Token {
