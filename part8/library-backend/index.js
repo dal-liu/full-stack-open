@@ -129,13 +129,13 @@ const typeDefs = `
     title: String!
     published: Int!
     author: Author!
-    id: ID!
+    _id: ID!
     genres: [String!]!
   }
 
   type Author {
     name: String!
-    id: ID!
+    _id: ID!
     born: Int
     bookCount: Int!
   }
@@ -156,10 +156,27 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
-      return Book.find({}).populate('author')
+      const filter = {}
+      if (args.author) {
+        const author = await Author.findOne({ name: args.author })
+        if (!author) {
+          return []
+        }
+        filter.author = author._id
+      }
+      if (args.genre) {
+        filter.genres = args.genre
+      }
+      return Book.find(filter).populate('author')
     },
     allAuthors: async () => {
-      return Author.find({})
+      const authors = await Author.find({})
+      return Promise.all(
+        authors.map(async a => {
+          const books = await Book.find({ author: a._id })
+          return { ...a.toJSON(), bookCount: books.length }
+        }),
+      )
     },
   },
   Mutation: {
