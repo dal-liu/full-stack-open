@@ -2,12 +2,16 @@ import { useQuery, useMutation } from '@apollo/client'
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 import { useState } from 'react'
 
-const AuthorForm = ({ authors }) => {
+const AuthorForm = ({ authors, token }) => {
   const [name, setName] = useState('')
   const [born, setBorn] = useState('')
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   })
+
+  if (!token) {
+    return null
+  }
 
   const submit = async event => {
     event.preventDefault()
@@ -78,7 +82,7 @@ const Authors = props => {
           ))}
         </tbody>
       </table>
-      <AuthorForm authors={authors} />
+      <AuthorForm authors={authors} token={props.token} />
     </div>
   )
 }
