@@ -1,10 +1,17 @@
-import { useQuery } from '@apollo/client'
+import { useLazyQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const Books = props => {
   const [filter, setFilter] = useState('')
-  const result = useQuery(ALL_BOOKS)
+  const [genreList, setGenreList] = useState([])
+  const [initialized, setInitialized] = useState(false)
+
+  const [allBooks, result] = useLazyQuery(ALL_BOOKS)
+
+  useEffect(() => {
+    allBooks()
+  }, [])
 
   if (!props.show) {
     return null
@@ -15,10 +22,19 @@ const Books = props => {
   }
 
   const books = result.data.allBooks
-  const genreList = [
-    ...new Set(books.reduce((acc, curr) => acc.concat(curr.genres), [])),
-  ]
-  const visible = filter ? books.filter(b => b.genres.includes(filter)) : books
+  if (!initialized) {
+    setGenreList([
+      ...new Set(books.reduce((acc, curr) => acc.concat(curr.genres), [])),
+    ])
+    setInitialized(true)
+  }
+
+  const handleFilterChange = event => {
+    setFilter(event.target.value)
+    event.target.value
+      ? allBooks({ variables: { genre: event.target.value } })
+      : allBooks()
+  }
 
   return (
     <div>
@@ -37,7 +53,7 @@ const Books = props => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {visible.map(a => (
+          {books.map(a => (
             <tr key={a.title}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>
@@ -48,11 +64,13 @@ const Books = props => {
       </table>
 
       {genreList.map(g => (
-        <button key={g} onClick={() => setFilter(g)}>
+        <button key={g} value={g} onClick={handleFilterChange}>
           {g}
         </button>
       ))}
-      <button onClick={() => setFilter('')}>all genres</button>
+      <button value={''} onClick={handleFilterChange}>
+        all genres
+      </button>
     </div>
   )
 }
