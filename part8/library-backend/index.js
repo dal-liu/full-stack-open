@@ -118,8 +118,8 @@ const resolvers = {
         })
       }
 
-      const author = await Author.exists({ name: args.author })
-      if (!author) {
+      const authorExists = await Author.exists({ name: args.author })
+      if (!authorExists) {
         const newAuthor = new Author({ name: args.author })
         try {
           await newAuthor.save()
@@ -134,10 +134,8 @@ const resolvers = {
         }
       }
 
-      const authorID = author
-        ? author._id
-        : await Author.findOne({ name: args.author })
-      const book = new Book({ ...args, author: authorID })
+      const author = await Author.findOne({ name: args.author })
+      const book = new Book({ ...args, author: author._id })
       try {
         await book.save()
       } catch (error) {
@@ -150,7 +148,7 @@ const resolvers = {
         })
       }
 
-      return book
+      return { ...book.toJSON(), author }
     },
     editAuthor: async (root, args, context) => {
       if (!context.currentUser) {

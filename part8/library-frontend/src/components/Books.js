@@ -1,33 +1,33 @@
-import { useLazyQuery } from '@apollo/client'
+import { useLazyQuery, useQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
 import { useState, useEffect } from 'react'
 
 const Books = props => {
   const [filter, setFilter] = useState('')
-  const [genreList, setGenreList] = useState([])
-  const [initialized, setInitialized] = useState(false)
 
-  const [allBooks, result] = useLazyQuery(ALL_BOOKS)
+  const result = useQuery(ALL_BOOKS)
+  const [allBooks, lazyResult] = useLazyQuery(ALL_BOOKS)
 
   useEffect(() => {
     allBooks()
-  }, [])
+  }, [allBooks])
 
   if (!props.show) {
     return null
   }
 
-  if (result.loading) {
+  if (result.loading || lazyResult.loading) {
     return <div>loading...</div>
   }
 
-  const books = result.data.allBooks
-  if (!initialized) {
-    setGenreList([
-      ...new Set(books.reduce((acc, curr) => acc.concat(curr.genres), [])),
-    ])
-    setInitialized(true)
-  }
+  const completeBooks = result.data.allBooks
+  const books = lazyResult.data.allBooks
+
+  const genreList = [
+    ...new Set(
+      completeBooks.reduce((acc, curr) => acc.concat(curr.genres), []),
+    ),
+  ]
 
   const handleFilterChange = event => {
     setFilter(event.target.value)
