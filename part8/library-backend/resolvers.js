@@ -25,13 +25,7 @@ const resolvers = {
       return Book.find(filter).populate('author')
     },
     allAuthors: async () => {
-      const authors = await Author.find({})
-      return Promise.all(
-        authors.map(async a => {
-          const bookCount = await Book.find({ author: a._id }).countDocuments()
-          return { ...a.toJSON(), bookCount }
-        }),
-      )
+      return Author.find({})
     },
     me: (root, args, context) => {
       return context.currentUser
@@ -49,7 +43,7 @@ const resolvers = {
 
       const authorExists = await Author.exists({ name: args.author })
       if (!authorExists) {
-        const newAuthor = new Author({ name: args.author })
+        const newAuthor = new Author({ name: args.author, bookCount: 0 })
         try {
           await newAuthor.save()
         } catch (error) {
@@ -63,9 +57,8 @@ const resolvers = {
         }
       }
 
-      const author = authorExists
-        ? authorExists
-        : await Author.findOne({ name: args.author })
+      const author =
+        authorExists || (await Author.findOne({ name: args.author }))
       const book = new Book({ ...args, author: author._id })
       try {
         await book.save()
@@ -79,14 +72,13 @@ const resolvers = {
         })
       }
 
-      const bookCount = authorExists
-        ? await Book.find({ author: author._id }).countDocuments()
-        : 1
-      const populatedBook = (await book.populate('author')).toJSON()
-      const bookAdded = {
-        ...populatedBook,
-        author: { ...populatedBook.author, bookCount },
-      }
+      await Author.findByIdAndUpdate(
+        author._id,
+        { bookCount: author.bookCount + 1 },
+        { new: true },
+      )
+
+      const bookAdded = await book.populate('author')
 
       pubsub.publish('BOOK_ADDED', { bookAdded })
 
@@ -111,8 +103,7 @@ const resolvers = {
         { born: args.setBornTo },
         { new: true },
       )
-      const bookCount = await Book.find({ author: author._id }).countDocuments()
-      return { ...updatedAuthor.toJSON(), bookCount }
+      return updatedAuthor
     },
     createUser: async (root, args) => {
       const user = new User({
