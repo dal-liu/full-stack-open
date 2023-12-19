@@ -1,5 +1,3 @@
-import { isNumber } from './utils';
-
 interface Result {
   periodLength: number;
   trainingDays: number;
@@ -10,33 +8,7 @@ interface Result {
   average: number;
 }
 
-interface ExerciseValues {
-  exerciseHours: number[];
-  target: number;
-}
-
-const parseExerciseArguments = (args: string[]): ExerciseValues => {
-  if (args.length < 4) throw new Error('Not enough arguments');
-
-  const exerciseHours = args.slice(3).map((d) => {
-    if (isNumber(d)) {
-      return Number(d);
-    } else {
-      throw new Error(`Provided value ${d} was not a number`);
-    }
-  });
-
-  if (isNumber(args[2])) {
-    return {
-      exerciseHours,
-      target: Number(args[2]),
-    };
-  } else {
-    throw new Error('Provided target was not a number');
-  }
-};
-
-const calculateExercises = (
+export const calculateExercises = (
   exerciseHours: number[],
   target: number
 ): Result => {
@@ -64,14 +36,3 @@ const calculateExercises = (
     average,
   };
 };
-
-try {
-  const { exerciseHours, target } = parseExerciseArguments(process.argv);
-  console.log(calculateExercises(exerciseHours, target));
-} catch (error: unknown) {
-  let errorMessage = 'An error occurred.';
-  if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
-  }
-  console.log(errorMessage);
-}

@@ -1,24 +1,3 @@
-import { isNumber } from './utils';
-
-interface BmiValues {
-  height: number;
-  weight: number;
-}
-
-const parseBmiArguments = (args: string[]): BmiValues => {
-  if (args.length < 4) throw new Error('Not enough arguments');
-  if (args.length > 4) throw new Error('Too many arguments');
-
-  if (isNumber(args[2]) && isNumber(args[3])) {
-    return {
-      height: Number(args[2]),
-      weight: Number(args[3]),
-    };
-  } else {
-    throw new Error('Provided values were not numbers!');
-  }
-};
-
 export const calculateBmi = (height: number, weight: number): string => {
   if (height === 0) throw new Error("Can't divide by 0!");
 
@@ -41,14 +20,3 @@ export const calculateBmi = (height: number, weight: number): string => {
     return 'Obese (Class III)';
   }
 };
-
-try {
-  const { height, weight } = parseBmiArguments(process.argv);
-  console.log(calculateBmi(height, weight));
-} catch (error: unknown) {
-  let errorMessage = 'Something bad happened.';
-  if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
-  }
-  console.log(errorMessage);
-}
