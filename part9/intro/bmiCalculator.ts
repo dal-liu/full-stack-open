@@ -19,7 +19,7 @@ const parseBmiArguments = (args: string[]): BmiValues => {
   }
 };
 
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
   if (height === 0) throw new Error("Can't divide by 0!");
 
   const bmi = weight / (height / 100) ** 2;
