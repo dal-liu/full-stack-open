@@ -3,7 +3,7 @@ export interface DiaryEntry {
   date: string;
   weather: string;
   visibility: string;
-  comment: string;
+  comment?: string;
 }
 
-export type NewDiary = Omit<DiaryEntry, 'id'>;
+export type NewDiaryEntry = Omit<DiaryEntry, 'id'>;
