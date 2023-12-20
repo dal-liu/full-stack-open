@@ -48,22 +48,67 @@ const EntryForm = ({
         <div>
           date
           <input
+            type="date"
             value={date}
             onChange={({ target }) => setDate(target.value)}
           />
         </div>
         <div>
-          visibility
+          visibility&emsp;great
           <input
-            value={visibility}
-            onChange={({ target }) => setVisibility(target.value)}
+            type="radio"
+            onChange={() => setVisibility('great')}
+            name="visibility"
+          />
+          &ensp;good
+          <input
+            type="radio"
+            onChange={() => setVisibility('good')}
+            name="visibility"
+          />
+          &ensp;ok
+          <input
+            type="radio"
+            onChange={() => setVisibility('ok')}
+            name="visibility"
+          />
+          &ensp;poor
+          <input
+            type="radio"
+            onChange={() => setVisibility('poor')}
+            name="visibility"
           />
         </div>
         <div>
-          weather
+          weather&emsp;sunny
           <input
-            value={weather}
-            onChange={({ target }) => setWeather(target.value)}
+            type="radio"
+            onChange={() => setWeather('sunny')}
+            name="weather"
+          />
+          &ensp;rainy
+          <input
+            type="radio"
+            onChange={() => setWeather('rainy')}
+            name="weather"
+          />
+          &ensp;cloudy
+          <input
+            type="radio"
+            onChange={() => setWeather('cloudy')}
+            name="weather"
+          />
+          &ensp;stormy
+          <input
+            type="radio"
+            onChange={() => setWeather('stormy')}
+            name="weather"
+          />
+          &ensp;windy
+          <input
+            type="radio"
+            onChange={() => setWeather('windy')}
+            name="weather"
           />
         </div>
         <div>
