@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAll, createEntry } from './services/diaryEntries';
 import { DiaryEntry, NewDiaryEntry } from './types';
+import axios from 'axios';
 
 const Entry = ({ entry }: { entry: DiaryEntry }) => {
   return (
@@ -17,8 +18,10 @@ const Entry = ({ entry }: { entry: DiaryEntry }) => {
 
 const EntryForm = ({
   createDiaryEntry,
+  errorMessage,
 }: {
   createDiaryEntry: (entry: NewDiaryEntry) => void;
+  errorMessage: string;
 }) => {
   const [date, setDate] = useState('');
   const [visibility, setVisibility] = useState('');
@@ -38,6 +41,9 @@ const EntryForm = ({
   return (
     <>
       <h3>Add new entry</h3>
+
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+
       <form onSubmit={entryCreation}>
         <div>
           date
@@ -75,6 +81,7 @@ const EntryForm = ({
 
 const App = () => {
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     async function getDiaries() {
@@ -85,13 +92,28 @@ const App = () => {
   }, []);
 
   const createDiaryEntry = async (entry: NewDiaryEntry) => {
-    const newEntry = await createEntry(entry);
-    setDiaryEntries(diaryEntries.concat(newEntry));
+    try {
+      const newEntry = await createEntry(entry);
+      setDiaryEntries(diaryEntries.concat(newEntry));
+      setErrorMessage('');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setErrorMessage(
+          error.response ? error.response.data : 'Unknown error occurred'
+        );
+      } else {
+        console.log(error);
+      }
+    }
   };
 
   return (
     <>
-      <EntryForm createDiaryEntry={createDiaryEntry} />
+      <EntryForm
+        createDiaryEntry={createDiaryEntry}
+        errorMessage={errorMessage}
+      />
+
       <h3>Diary entries</h3>
       {diaryEntries.map((entry) => (
         <Entry key={entry.id} entry={entry} />
