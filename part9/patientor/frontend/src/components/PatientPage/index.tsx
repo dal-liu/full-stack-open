@@ -1,5 +1,6 @@
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
+import { Typography } from '@mui/material';
 
 import { Patient, Gender } from '../../types';
 
@@ -21,10 +22,33 @@ const PatientPage = ({ patient }: { patient: Patient | undefined | null }) => {
 
   return (
     <div className="App">
-      <h2>
+      <Typography
+        variant="h4"
+        style={{ marginTop: '1em', marginBottom: '0.5em' }}
+      >
         {patient.name} {icon(patient.gender)}
-      </h2>
-      <p>occupation: {patient.occupation}</p>
+      </Typography>
+      <Typography variant="body1" style={{ marginBottom: '1em' }}>
+        ssn: {patient.ssn}
+        <br />
+        occupation: {patient.occupation}
+      </Typography>
+      <Typography variant="h5" style={{ marginBottom: '0.5em' }}>
+        entries
+      </Typography>
+      {patient.entries.map((entry) => (
+        <div key={entry.id}>
+          <Typography variant="body1">
+            {entry.date} {entry.description}
+          </Typography>
+          <ul>
+            <Typography variant="body1">
+              {entry.diagnosisCodes &&
+                entry.diagnosisCodes.map((code) => <li key={code}>{code}</li>)}
+            </Typography>
+          </ul>
+        </div>
+      ))}
     </div>
   );
 };
