@@ -2,9 +2,14 @@ import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import { Typography } from '@mui/material';
 
-import { Patient, Gender } from '../../types';
+import { Patient, Gender, Diagnosis, Entry } from '../../types';
 
-const PatientPage = ({ patient }: { patient: Patient | undefined | null }) => {
+interface Props {
+  patient: Patient | undefined | null;
+  diagnoses: Diagnosis[];
+}
+
+const PatientPage = ({ patient, diagnoses }: Props) => {
   if (!patient) {
     return null;
   }
@@ -18,6 +23,28 @@ const PatientPage = ({ patient }: { patient: Patient | undefined | null }) => {
       default:
         return null;
     }
+  };
+
+  const diagnosisDescriptions = (entry: Entry) => {
+    if (!entry.diagnosisCodes) {
+      return null;
+    }
+
+    const filteredDiagnoses = diagnoses.filter((diagnosis) => {
+      return entry.diagnosisCodes?.includes(diagnosis.code);
+    });
+
+    return (
+      <ul>
+        <Typography variant="body1">
+          {filteredDiagnoses.map((diagnosis) => (
+            <li key={diagnosis.code}>
+              {diagnosis.code} {diagnosis.name}
+            </li>
+          ))}
+        </Typography>
+      </ul>
+    );
   };
 
   return (
@@ -41,12 +68,7 @@ const PatientPage = ({ patient }: { patient: Patient | undefined | null }) => {
           <Typography variant="body1">
             {entry.date} {entry.description}
           </Typography>
-          <ul>
-            <Typography variant="body1">
-              {entry.diagnosisCodes &&
-                entry.diagnosisCodes.map((code) => <li key={code}>{code}</li>)}
-            </Typography>
-          </ul>
+          {diagnosisDescriptions(entry)}
         </div>
       ))}
     </div>
