@@ -1,11 +1,16 @@
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import { Typography } from '@mui/material';
+import { useState } from 'react';
+import { Button } from '@mui/material';
+import axios from 'axios';
+
 import DiagnosesContext from './DiagnosesContext';
-
 import EntryDetails from './EntryDetails';
+import AddEntryModal from '../AddEntryModal';
+import patientService from '../../services/patients';
 
-import { Patient, Gender, Diagnosis } from '../../types';
+import { Patient, Gender, Diagnosis, NewEntry } from '../../types';
 
 interface Props {
   patient: Patient | undefined | null;
@@ -13,9 +18,44 @@ interface Props {
 }
 
 const PatientPage = ({ patient, diagnoses }: Props) => {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+  const openModal = (): void => {
+    setModalOpen(true);
+  };
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+  };
+
   if (!patient) {
     return null;
   }
+
+  const submitNewEntry = async (values: NewEntry) => {
+    try {
+      const entry = await patientService.createEntry(patient.id, values);
+      patient.entries.push(entry);
+      setModalOpen(false);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e?.response?.data && typeof e?.response?.data === 'string') {
+          const message = e.response.data.replace(
+            'Something went wrong. Error: ',
+            ''
+          );
+          console.error(message);
+          setError(message);
+        } else {
+          setError('Unrecognized axios error');
+        }
+      } else {
+        console.error('Unknown error', e);
+        setError('Unknown error');
+      }
+    }
+  };
 
   const icon = (gender: Gender) => {
     switch (gender) {
@@ -45,6 +85,20 @@ const PatientPage = ({ patient, diagnoses }: Props) => {
         <Typography variant="h5" style={{ marginBottom: '0.5em' }}>
           entries
         </Typography>
+        <AddEntryModal
+          patientName={patient.name}
+          modalOpen={modalOpen}
+          onClose={closeModal}
+          onSubmit={submitNewEntry}
+          error={error}
+        />
+        <Button
+          variant="contained"
+          onClick={() => openModal()}
+          style={{ marginBottom: '1em' }}
+        >
+          Add New Entry
+        </Button>
         {patient.entries.map((entry) => (
           <EntryDetails key={entry.id} entry={entry} />
         ))}
