@@ -6,29 +6,30 @@ import {
   DialogContent,
   Alert,
 } from '@mui/material';
-import { useState } from 'react';
 
 import AddEntryForm from './AddEntryForm';
 
-import { NewEntry } from '../../types';
+import { NewEntry, Diagnosis } from '../../types';
 
 interface Props {
-  patientName: string;
   modalOpen: boolean;
   onClose: () => void;
   onSubmit: (values: NewEntry) => void;
   error: string;
+  type: string;
+  setType: React.Dispatch<React.SetStateAction<string>>;
+  diagnoses: Diagnosis[];
 }
 
 const AddEntryModal = ({
-  patientName,
   modalOpen,
   onClose,
   onSubmit,
   error,
+  type,
+  setType,
+  diagnoses,
 }: Props) => {
-  const [type, setType] = useState('');
-
   const onCancel = () => {
     onClose();
     setType('');
@@ -36,14 +37,19 @@ const AddEntryModal = ({
 
   return (
     <Dialog fullWidth open={modalOpen} onClose={onCancel}>
-      <DialogTitle>New entry for {patientName}</DialogTitle>
+      <DialogTitle>Add a new entry</DialogTitle>
       <DialogContent dividers>
         {error && (
           <Alert severity="error" style={{ marginBottom: '1em' }}>
             {error}
           </Alert>
         )}
-        <AddEntryForm onSubmit={onSubmit} type={type} setType={setType} />
+        <AddEntryForm
+          onSubmit={onSubmit}
+          type={type}
+          setType={setType}
+          diagnoses={diagnoses}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel} color="secondary">

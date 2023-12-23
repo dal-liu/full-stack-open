@@ -6,21 +6,52 @@ import {
   MenuItem,
   InputLabel,
   Stack,
+  Input,
+  Typography,
+  SelectChangeEvent,
 } from '@mui/material';
 
-import { NewEntry, HealthCheckRating } from '../../types';
+import { NewEntry, HealthCheckRating, Diagnosis } from '../../types';
 
 interface Props {
   onSubmit: (values: NewEntry) => void;
   type: string;
   setType: React.Dispatch<React.SetStateAction<string>>;
+  diagnoses: Diagnosis[];
 }
 
-const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
+interface HealthCheckOption {
+  key: string;
+  value: number;
+}
+
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: '20%',
+    },
+  },
+};
+
+const createOptions = (): HealthCheckOption[] => {
+  const values = Object.values(HealthCheckRating).map((v) => v.toString());
+  const strings = values.slice(0, values.length / 2);
+  const numbers = values.slice(values.length / 2, values.length);
+  return strings.map((s, i) => ({
+    key: s,
+    value: Number(numbers[i]),
+  }));
+};
+
+const healthCheckOptions = createOptions();
+
+const AddEntryForm = ({ onSubmit, type, setType, diagnoses }: Props) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
-  const [diagnosisCodes, setDiagnosisCodes] = useState('');
+  const [diagnosisCodes, setDiagnosisCodes] = useState<
+    Array<Diagnosis['code']>
+  >([]);
   const [healthCheckRating, setHealthCheckRating] = useState(
     HealthCheckRating['Healthy']
   );
@@ -30,13 +61,25 @@ const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
   const [dischargeDate, setDischargeDate] = useState('');
   const [dischargeCriteria, setDischargeCriteria] = useState('');
 
-  const addEntry = (event: SyntheticEvent): void => {
+  const onRatingChange = (event: SelectChangeEvent<number>) => {
+    event.preventDefault();
+    if (typeof event.target.value === 'number') {
+      const value = event.target.value;
+      const values = Object.values(HealthCheckRating).map((r) => Number(r));
+      const rating = values.find((r) => r === value);
+      if (rating) {
+        setHealthCheckRating(rating);
+      }
+    }
+  };
+
+  const addEntry = (event: SyntheticEvent) => {
     event.preventDefault();
     const entryBase = {
       description,
       date,
       specialist,
-      diagnosisCodes: diagnosisCodes.split(','),
+      diagnosisCodes,
     };
 
     switch (type) {
@@ -82,13 +125,17 @@ const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
         onChange={({ target }) => setDescription(target.value)}
         margin="dense"
       />
-      <TextField
-        label="Date"
-        fullWidth
-        value={date}
-        onChange={({ target }) => setDate(target.value)}
-        margin="dense"
-      />
+      <FormControl fullWidth margin="dense">
+        <InputLabel shrink variant="standard">
+          Date
+        </InputLabel>
+        <Input
+          type="date"
+          fullWidth
+          value={date}
+          onChange={({ target }) => setDate(target.value)}
+        />
+      </FormControl>
       <TextField
         label="Specialist"
         fullWidth
@@ -99,23 +146,54 @@ const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
     </>
   );
 
-  const healthCheckForm = (
-    <form id="entry-form" onSubmit={addEntry}>
-      {entryFormBase}
-      <TextField
-        label="Healthcheck rating"
-        fullWidth
-        value={healthCheckRating}
-        onChange={({ target }) => setHealthCheckRating(target.value)}
-        margin="dense"
-      />
-      <TextField
+  const handleCodeChange = (
+    event: SelectChangeEvent<typeof diagnosisCodes>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setDiagnosisCodes(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const diagnosisCodesField = (
+    <FormControl fullWidth margin="dense">
+      <InputLabel>Diagnosis codes</InputLabel>
+      <Select
         label="Diagnosis codes"
         fullWidth
         value={diagnosisCodes}
-        onChange={({ target }) => setDiagnosisCodes(target.value)}
-        margin="dense"
-      />
+        onChange={handleCodeChange}
+        multiple
+        MenuProps={MenuProps}
+      >
+        {diagnoses.map((diagnosis) => (
+          <MenuItem key={diagnosis.code} value={diagnosis.code}>
+            {diagnosis.code}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+  const healthCheckForm = (
+    <form id="entry-form" onSubmit={addEntry}>
+      {entryFormBase}
+      <FormControl fullWidth margin="dense">
+        <InputLabel>HealthCheck rating</InputLabel>
+        <Select
+          label="HealthCheck rating"
+          fullWidth
+          value={healthCheckRating}
+          onChange={onRatingChange}
+        >
+          {healthCheckOptions.map((option) => (
+            <MenuItem key={option.key} value={option.value}>
+              {option.key}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      {diagnosisCodesField}
     </form>
   );
 
@@ -129,33 +207,36 @@ const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
         onChange={({ target }) => setEmployerName(target.value)}
         margin="dense"
       />
-      <InputLabel style={{ marginTop: '0.5em' }}>Sick leave</InputLabel>
-      <Stack direction="row" spacing={2}>
-        <TextField
-          label="Start"
+      <InputLabel style={{ marginTop: '0.25em' }}>Sick leave</InputLabel>
+      <Stack direction="row" spacing={2} style={{ marginBottom: '0.25em' }}>
+        <Input
+          type="date"
           fullWidth
           value={sickLeaveStartDate}
           onChange={({ target }) => setSickLeaveStartDate(target.value)}
         />
-        <TextField
-          label="End"
+        <Typography variant="body1">to</Typography>
+        <Input
+          type="date"
           fullWidth
           value={sickLeaveEndDate}
           onChange={({ target }) => setSickLeaveEndDate(target.value)}
         />
       </Stack>
+      {diagnosisCodesField}
     </form>
   );
 
-  const hostpitalForm = (
+  const hospitalForm = (
     <form id="entry-form" onSubmit={addEntry}>
       {entryFormBase}
-      <TextField
-        label="Discharge date"
+      <InputLabel style={{ marginTop: '0.25em' }}>Discharge date</InputLabel>
+      <Input
+        type="date"
         fullWidth
         value={dischargeDate}
         onChange={({ target }) => setDischargeDate(target.value)}
-        margin="dense"
+        style={{ marginBottom: '0.25em' }}
       />
       <TextField
         label="Discharge criteria"
@@ -164,15 +245,15 @@ const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
         onChange={({ target }) => setDischargeCriteria(target.value)}
         margin="dense"
       />
+      {diagnosisCodesField}
     </form>
   );
 
   return (
     <>
-      <FormControl fullWidth>
-        <InputLabel id="entry-type-label">Entry type</InputLabel>
+      <FormControl fullWidth margin="dense">
+        <InputLabel>Entry type</InputLabel>
         <Select
-          labelId="entry-type-label"
           value={type}
           label="Entry type"
           onChange={({ target }) => setType(target.value)}
@@ -186,7 +267,7 @@ const AddEntryForm = ({ onSubmit, type, setType }: Props) => {
       </FormControl>
       {type === 'HealthCheck' && healthCheckForm}
       {type === 'OccupationalHealthcare' && occupationalHealthcareForm}
-      {type === 'Hospital' && hostpitalForm}
+      {type === 'Hospital' && hospitalForm}
     </>
   );
 };

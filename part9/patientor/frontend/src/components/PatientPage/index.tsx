@@ -20,6 +20,7 @@ interface Props {
 const PatientPage = ({ patient, diagnoses }: Props) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [type, setType] = useState<string>('');
 
   const openModal = (): void => {
     setModalOpen(true);
@@ -39,6 +40,7 @@ const PatientPage = ({ patient, diagnoses }: Props) => {
       const entry = await patientService.createEntry(patient.id, values);
       patient.entries.push(entry);
       setModalOpen(false);
+      setType('');
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         if (e?.response?.data && typeof e?.response?.data === 'string') {
@@ -87,11 +89,13 @@ const PatientPage = ({ patient, diagnoses }: Props) => {
           entries
         </Typography>
         <AddEntryModal
-          patientName={patient.name}
           modalOpen={modalOpen}
           onClose={closeModal}
           onSubmit={submitNewEntry}
           error={error}
+          type={type}
+          setType={setType}
+          diagnoses={diagnoses}
         />
         <Button
           variant="contained"
