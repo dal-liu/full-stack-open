@@ -60,10 +60,8 @@ const OccupationalHealthcareEntry = ({ entry }: { entry: Entry }) => {
         </Typography>
         {entry.sickLeave && (
           <Typography variant="body1">
-            <b>
-              sick leave: {entry.sickLeave.startDate} &ndash;{' '}
-              {entry.sickLeave.endDate}
-            </b>
+            sick leave: {entry.sickLeave.startDate} &ndash;{' '}
+            {entry.sickLeave.endDate}
           </Typography>
         )}
         <Typography variant="body1">diagnose by {entry.specialist}</Typography>
@@ -87,9 +85,7 @@ const HospitalEntry = ({ entry }: { entry: Entry }) => {
           <i>{entry.description}</i>
         </Typography>
         <Typography variant="body1">
-          <b>
-            {entry.discharge.criteria} discharged {entry.discharge.date}
-          </b>
+          {entry.discharge.criteria} discharged {entry.discharge.date}
         </Typography>
         <Typography variant="body1">diagnose by {entry.specialist}</Typography>
         <DiagnosisList entry={entry} />

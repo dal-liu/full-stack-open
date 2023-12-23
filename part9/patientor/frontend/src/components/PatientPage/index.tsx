@@ -27,6 +27,7 @@ const PatientPage = ({ patient, diagnoses }: Props) => {
 
   const closeModal = (): void => {
     setModalOpen(false);
+    setError('');
   };
 
   if (!patient) {

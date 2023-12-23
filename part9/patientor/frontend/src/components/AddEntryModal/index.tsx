@@ -6,6 +6,7 @@ import {
   DialogContent,
   Alert,
 } from '@mui/material';
+import { useState } from 'react';
 
 import AddEntryForm from './AddEntryForm';
 
@@ -26,18 +27,29 @@ const AddEntryModal = ({
   onSubmit,
   error,
 }: Props) => {
+  const [type, setType] = useState('');
+
+  const onCancel = () => {
+    onClose();
+    setType('');
+  };
+
   return (
-    <Dialog fullWidth open={modalOpen} onClose={onClose}>
-      <DialogTitle>Add a new entry for {patientName}</DialogTitle>
+    <Dialog fullWidth open={modalOpen} onClose={onCancel}>
+      <DialogTitle>New entry for {patientName}</DialogTitle>
       <DialogContent dividers>
-        {error && <Alert severity="error">{error}</Alert>}
-        <AddEntryForm onSubmit={onSubmit} />
+        {error && (
+          <Alert severity="error" style={{ marginBottom: '1em' }}>
+            {error}
+          </Alert>
+        )}
+        <AddEntryForm onSubmit={onSubmit} type={type} setType={setType} />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={onCancel} color="secondary">
           cancel
         </Button>
-        <Button type="submit" form="entry-form">
+        <Button type="submit" form="entry-form" disabled={!type}>
           add
         </Button>
       </DialogActions>
